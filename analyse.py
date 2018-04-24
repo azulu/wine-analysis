@@ -24,5 +24,5 @@ def scatter(df):
     ax.set_ylabel('Rating [out of 100]')
     plt.savefig('.\charts\scatter.png', format='png', dpi=200)
     
-scatter(df)
+#scatter(df)
 
