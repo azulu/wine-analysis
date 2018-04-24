@@ -8,6 +8,7 @@ Created on Tue Apr 24 09:21:07 2018
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pycountry as pyc
 
 reviews1 = ".\data\winemag-data_first150k.csv"
 
@@ -23,6 +24,22 @@ def scatter(df):
     ax.set_xlabel('Price [$]')
     ax.set_ylabel('Rating [out of 100]')
     plt.savefig('.\charts\scatter.png', format='png', dpi=200)
-    
-#scatter(df)
 
+
+def ccode(cname):
+    
+    try:
+        return pyc.countries.get(name=cname).alpha_3
+    
+    except ValueError:
+        return pyc.countries.get(alpha_2=cname).alpha_3
+    
+    """
+    if(pyc.countries.get(name=cname) is not None):
+        
+        return pyc.countries.get(name=cname).alpha_3
+        
+    elif(pyc.countries.get(alpha_2=cname) is not None):
+        
+        return pyc.countries.get(alpha_2=cname).alpha_3
+    """
