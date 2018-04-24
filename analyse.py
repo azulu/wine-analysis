@@ -31,8 +31,13 @@ def ccode(cname):
     try:
         return pyc.countries.get(name=cname).alpha_3
     
-    except ValueError:
-        return pyc.countries.get(alpha_2=cname).alpha_3
+    except KeyError:
+        
+        try:    
+            return pyc.countries.get(alpha_2=cname).alpha_3
+        
+        except KeyError:
+            return None
     
     """
     if(pyc.countries.get(name=cname) is not None):
@@ -43,3 +48,4 @@ def ccode(cname):
         
         return pyc.countries.get(alpha_2=cname).alpha_3
     """
+
