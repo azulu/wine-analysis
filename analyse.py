@@ -8,6 +8,8 @@ Created on Tue Apr 24 09:21:07 2018
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pycountry as pyc
+import plotly.plotly as py
 
 reviews1 = ".\data\winemag-data_first150k.csv"
 
@@ -23,6 +25,75 @@ def scatter(df):
     ax.set_xlabel('Price [$]')
     ax.set_ylabel('Rating [out of 100]')
     plt.savefig('.\charts\scatter.png', format='png', dpi=200)
-    
-#scatter(df)
 
+
+def ccode(cname):
+    
+    try:
+        return pyc.countries.get(name=cname).alpha_3
+    
+    except KeyError:
+        
+        try:    
+            return pyc.countries.get(alpha_2=cname).alpha_3
+        
+        except KeyError:
+            return None
+    
+    if(cname=='UK'):
+        return 'GBR'
+
+
+def choropleth(df):
+    
+    
+    #df_world_codes = df.drop_duplicates(subset=['country_code'])
+    df_world_codes = df['country_code'].unique()
+    df_world_occurences = df['country_code'].value_counts()
+    df_world_occurences.remove(None)
+    
+    df_world = pd.DataFrame({'codes':df_world_codes, 'occurences': df_world_occurences})
+    
+    #df_world['average'] = df.mean(axis={df_world['country_code'], 'rating'})
+    #df_world['country'] = df['country'].unique()
+    
+    return df_world.head()
+    
+    """
+    data = [dict(
+            type = 'choropleth',
+            locations =  df_world['country_code'],
+            z = df_world['average'],
+            text = df_world['country'],
+            colorscale = [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],\
+            [0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
+            autocolorscale = False,
+            reversescale = True,
+            marker = dict(
+                    line = dict(
+                            color = 'rgb(180,180,180)',
+                            width = 0.5
+                            )),
+            colorbar = dict(
+                    autotick = False,
+                    title = 'Average rating'),
+            )]
+            
+    layout = dict(
+            title = 'Average wine rating per country',
+            geo = dict(
+                    showframe = False,
+                    showcoastlines = False,
+                    projection = dict(
+                            type = 'Mercator')
+                    )
+            )
+    
+    fig = dict(
+            data = data,
+            layout = layout
+            )
+    py.iplot(fig, validate = False, filename='wine_ratings')
+    """
+
+df['country_code'] = df['country'].apply(ccode)
