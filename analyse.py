@@ -47,8 +47,10 @@ def ccode(cname):
 def choropleth(df):
     
     
-    df_world_codes = df.drop_duplicates(subset=['country_code'])
+    #df_world_codes = df.drop_duplicates(subset=['country_code'])
+    df_world_codes = df['country_code'].unique()
     df_world_occurences = df['country_code'].value_counts()
+    df_world_occurences.remove(None)
     
     df_world = pd.DataFrame({'codes':df_world_codes, 'occurences': df_world_occurences})
     
