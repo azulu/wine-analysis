@@ -1,4 +1,4 @@
-.png
-.html
+*.png
+*.html
 /charts/
 /.spyproject/
