@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pycountry as pyc
+import matplotlib
+from matplotlib import cm
 import plotly.plotly as py
 import plotly.offline as offline
 import plotly.graph_objs as go
@@ -62,7 +64,30 @@ def ccode(cname):
     if(cname=='UK'):
         return 'GBR'
 
-#Create a choropleth chart
+#Formats a cmap into an RGB map ---(source: plotly API)---
+def cmap_RGB(col_map):
+    
+    cmap = matplotlib.cm.get_cmap(col_map)
+    col_map_rgb = []
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=255)
+    
+    for i in range(0, 255):
+        k = matplotlib.colors.colorConverter.to_rgb(cmap(norm(i)))
+        col_map_rgb.append(k)
+    
+    def matplotlib_plotly(c_map, pl_entries):
+        h = 1.0/(pl_entries-1)
+        pl_colorscale = []
+        
+        for k in range(pl_entries):
+            c = list(map(np.uint8, np.array(c_map(k*h)[:3])*255))
+            pl_colorscale.append([k*h, 'rgb'+str((c[0], c[1], c[2]))])
+            
+        return pl_colorscale
+    
+    return matplotlib_plotly(cmap, 255)
+
+#Create a choropleth chart ---(source: plotly API)---
 def choropleth(df):
     
     #Count the number of reviews for each country
@@ -88,7 +113,8 @@ def choropleth(df):
             locations =  df_world['country_code'], #dimension, displayed
             z = df_world['avg_points'], #measure, displayed
             text = df_world['country'], #displayed country names
-            colorscale = [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
+            #colorscale = [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
+            colorscale = cmap_RGB('BuPu'),
             autocolorscale = False,
             reversescale = True, #legend goes from high to low
             marker = dict(
