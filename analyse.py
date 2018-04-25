@@ -53,10 +53,9 @@ def choropleth(df):
     df_world['avg_points'] = df.groupby('country_code')['points'].mean()
     df_world['avg_price'] = df.groupby('country_code')['price'].mean()
     
-    df_world['country'] = df['country'].unique()
-    
-    return df_world.head()
-    
+    cmap = df[['country_code', 'country']].copy().dropna().drop_duplicates().set_index('country_code').to_dict()['country']
+    df_world['country_code'] = df_world.index
+    df_world['country'] = df_world['country_code'].map(cmap)
     
     data = [dict(
             type = 'choropleth',
@@ -89,6 +88,5 @@ def choropleth(df):
             layout = layout)
     
     py.iplot(fig, validate = False, filename='wine_ratings')
-    
 
 df['country_code'] = df['country'].apply(ccode)
