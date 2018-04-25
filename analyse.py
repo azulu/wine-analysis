@@ -94,8 +94,7 @@ def cmap_RGB(col_map, inverse):
     
     return matplotlib_plotly(cmap, 255)
 
-#Create a choropleth chart ---(source: plotly API)---
-def choropleth(df):
+def country_data(df):
     
     #Count the number of reviews for each country
     world_occurences = df['country_code'].value_counts()
@@ -114,11 +113,16 @@ def choropleth(df):
     #Map country names to codes
     df_world['country'] = df_world['country_code'].map(cmap)
     
+    return df_world
+
+#Create a choropleth chart ---(source: plotly API)---
+def choropleth(df_world, world_meas, measure):
+    
     #Data and styling for plotting
     data = [dict(
             type = 'choropleth',
             locations =  df_world['country_code'], #dimension, displayed
-            z = df_world['avg_points'], #measure, displayed
+            z = df_world[world_meas], #measure, displayed
             text = df_world['country'], #displayed country names
             #colorscale = [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
             colorscale = cmap_RGB('BuPu', True),
@@ -130,11 +134,11 @@ def choropleth(df):
                             width = 0.5
                             )),
             colorbar = dict(
-                    title = 'Average rating'),)]
+                    title = measure),)]
             
     #Chart layout properties
     layout = dict(
-            title = 'Average wine rating per country',
+            title = measure + ' per country',
             geo = dict(
                     showframe = False,
                     showcoastlines = False, #country coastlines
