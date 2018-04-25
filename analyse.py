@@ -46,24 +46,22 @@ def ccode(cname):
 
 def choropleth(df):
     
+    world_occurences = df['country_code'].value_counts()
+    world_occurences = world_occurences.dropna()
+    df_world = pd.DataFrame({'occurences': world_occurences})
     
-    #df_world_codes = df.drop_duplicates(subset=['country_code'])
-    df_world_codes = df['country_code'].unique()
-    df_world_occurences = df['country_code'].value_counts()
-    df_world_occurences.remove(None)
+    df_world['avg_points'] = df.groupby('country_code')['points'].mean()
+    df_world['avg_price'] = df.groupby('country_code')['price'].mean()
     
-    df_world = pd.DataFrame({'codes':df_world_codes, 'occurences': df_world_occurences})
-    
-    #df_world['average'] = df.mean(axis={df_world['country_code'], 'rating'})
-    #df_world['country'] = df['country'].unique()
+    df_world['country'] = df['country'].unique()
     
     return df_world.head()
     
-    """
+    
     data = [dict(
             type = 'choropleth',
             locations =  df_world['country_code'],
-            z = df_world['average'],
+            z = df_world['avg_points'],
             text = df_world['country'],
             colorscale = [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],\
             [0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
@@ -76,8 +74,7 @@ def choropleth(df):
                             )),
             colorbar = dict(
                     autotick = False,
-                    title = 'Average rating'),
-            )]
+                    title = 'Average rating'),)]
             
     layout = dict(
             title = 'Average wine rating per country',
@@ -85,15 +82,13 @@ def choropleth(df):
                     showframe = False,
                     showcoastlines = False,
                     projection = dict(
-                            type = 'Mercator')
-                    )
-            )
+                            type = 'Mercator')))
     
     fig = dict(
             data = data,
-            layout = layout
-            )
+            layout = layout)
+    
     py.iplot(fig, validate = False, filename='wine_ratings')
-    """
+    
 
 df['country_code'] = df['country'].apply(ccode)
