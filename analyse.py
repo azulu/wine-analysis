@@ -14,6 +14,7 @@ from matplotlib import cm
 import plotly.plotly as py
 import plotly.offline as offline
 import plotly.graph_objs as go
+from wordcloud import WordCloud
 
 #Initiate offline notebook for plotly
 offline.init_notebook_mode(connected=True)
@@ -153,6 +154,17 @@ def choropleth(df_world, world_meas, measure):
     
     #Save an offline copy of the chart
     offline.plot(fig, filename='wine-scores-map.html')
+    
+def wordcloud(df):
+    
+    words = ';'.join(df.description.tolist()).lower()
+    fig = plt.figure(frameon=False)
+    wordcloud = WordCloud().generate(words)
+    #wordcloud.to_file('.\charts\wordcloud.png')
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis("off")
+    plt.savefig('.\charts\wordcloud.png', format='png', dpi=200)
+    
     
 #Apply the country coding function
 df['country_code'] = df['country'].apply(ccode)
