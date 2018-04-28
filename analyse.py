@@ -14,6 +14,7 @@ from matplotlib import cm
 import plotly.plotly as py
 import plotly.offline as offline
 import plotly.graph_objs as go
+from wordcloud import WordCloud
 
 #Initiate offline notebook for plotly
 offline.init_notebook_mode(connected=True)
@@ -65,7 +66,7 @@ def ccode(cname):
         return 'GBR'
 
 #Formats a cmap into an RGB map ---(source: plotly API)---
-def cmap_RGB(col_map):
+def cmap_RGB(col_map, inverse):
     
     cmap = matplotlib.cm.get_cmap(col_map)
     col_map_rgb = []
@@ -80,15 +81,21 @@ def cmap_RGB(col_map):
         pl_colorscale = []
         
         for k in range(pl_entries):
-            c = list(map(np.uint8, np.array(c_map(k*h)[:3])*255))
+            
+            if(inverse):
+                idx = ((pl_entries-1)-k)*h #inverse the colour order
+            else:
+                idx = k*h #regular order
+            
+            
+            c = list(map(np.uint8, np.array(c_map(idx)[:3])*255))
             pl_colorscale.append([k*h, 'rgb'+str((c[0], c[1], c[2]))])
             
         return pl_colorscale
     
     return matplotlib_plotly(cmap, 255)
 
-#Create a choropleth chart ---(source: plotly API)---
-def choropleth(df):
+def country_data(df):
     
     #Count the number of reviews for each country
     world_occurences = df['country_code'].value_counts()
@@ -107,14 +114,19 @@ def choropleth(df):
     #Map country names to codes
     df_world['country'] = df_world['country_code'].map(cmap)
     
+    return df_world
+
+#Create a choropleth chart ---(source: plotly API)---
+def choropleth(df_world, world_meas, measure):
+    
     #Data and styling for plotting
     data = [dict(
             type = 'choropleth',
             locations =  df_world['country_code'], #dimension, displayed
-            z = df_world['avg_points'], #measure, displayed
+            z = df_world[world_meas], #measure, displayed
             text = df_world['country'], #displayed country names
             #colorscale = [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],[0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
-            colorscale = cmap_RGB('BuPu'),
+            colorscale = cmap_RGB('BuPu', True),
             autocolorscale = False,
             reversescale = True, #legend goes from high to low
             marker = dict(
@@ -123,11 +135,11 @@ def choropleth(df):
                             width = 0.5
                             )),
             colorbar = dict(
-                    title = 'Average rating'),)]
+                    title = measure),)]
             
     #Chart layout properties
     layout = dict(
-            title = 'Average wine rating per country',
+            title = measure + ' per country',
             geo = dict(
                     showframe = False,
                     showcoastlines = False, #country coastlines
@@ -142,6 +154,17 @@ def choropleth(df):
     
     #Save an offline copy of the chart
     offline.plot(fig, filename='wine-scores-map.html')
+    
+def wordcloud(df):
+    
+    words = ';'.join(df.description.tolist()).lower()
+    fig = plt.figure(frameon=False)
+    wordcloud = WordCloud().generate(words)
+    #wordcloud.to_file('.\charts\wordcloud.png')
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis("off")
+    plt.savefig('.\charts\wordcloud.png', format='png', dpi=200)
+    
     
 #Apply the country coding function
 df['country_code'] = df['country'].apply(ccode)
