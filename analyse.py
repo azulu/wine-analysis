@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 import pycountry as pyc
 import matplotlib
 from matplotlib import cm
-#import plotly.plotly as py
-#import plotly.offline as offline
-#import plotly.graph_objs as go
-#from wordcloud import WordCloud
+import plotly.plotly as py
+import plotly.offline as offline
+import plotly.graph_objs as go
+from wordcloud import WordCloud
 
 #Initiate offline notebook for plotly
-#offline.init_notebook_mode(connected=True)
+offline.init_notebook_mode(connected=True)
 
 #Open data files
 reviews1 = ".\data\winemag-data_first150k.csv"
